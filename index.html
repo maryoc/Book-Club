@@ -309,6 +309,7 @@
             grid-template-columns: repeat(7, 1fr);
             gap: 10px;
             margin-top: 20px;
+            overflow-x: auto;
         }
 
         .calendar-header {
@@ -525,6 +526,28 @@
             font-weight: 500;
         }
 
+        .set-meeting-btn {
+            width: 100%;
+            margin-top: 20px;
+            background: #34c759;
+            display: none;
+            padding: 14px 24px;
+            font-size: 16px;
+        }
+
+        .set-meeting-btn:hover {
+            background: #30d158;
+        }
+
+        .set-meeting-btn.show {
+            display: block;
+        }
+
+        .calendar-day.selected {
+            border: 2px solid #0071e3;
+            border-width: 2px;
+        }
+
         /* Mobile optimizations */
         @media (max-width: 768px) {
             body {
@@ -532,17 +555,17 @@
             }
 
             .container {
-                padding: 30px 20px;
+                padding: 20px 12px;
                 border-radius: 12px;
             }
 
             h1 {
-                font-size: 32px;
-                margin-bottom: 32px;
+                font-size: 28px;
+                margin-bottom: 24px;
             }
 
             h2 {
-                font-size: 24px;
+                font-size: 22px;
             }
 
             .tabs {
@@ -551,8 +574,8 @@
             }
 
             .tab {
-                font-size: 13px;
-                padding: 8px 12px;
+                font-size: 12px;
+                padding: 8px 8px;
             }
 
             .input-group {
@@ -561,20 +584,41 @@
             }
 
             .calendar-grid {
-                gap: 6px;
+                gap: 4px;
+                font-size: 12px;
             }
 
             .calendar-day {
-                font-size: 14px;
-                padding: 4px;
+                font-size: 12px;
+                padding: 2px;
+                min-width: 0;
             }
 
             .calendar-day .date {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .calendar-day .count {
-                font-size: 10px;
+                font-size: 9px;
+            }
+
+            .calendar-header {
+                font-size: 11px;
+                padding: 8px 2px;
+            }
+
+            .calendar-controls {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+
+            .calendar-controls h2 {
+                text-align: center;
+            }
+
+            .month-nav {
+                justify-content: center;
             }
 
             .item {
@@ -591,6 +635,27 @@
             .legend {
                 flex-direction: column;
                 gap: 12px;
+            }
+
+            .legend-item {
+                font-size: 13px;
+            }
+
+            .next-meeting-info {
+                padding: 16px;
+            }
+
+            .global-meeting-banner {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+
+            .global-meeting-banner h3 {
+                font-size: 15px;
+            }
+
+            .global-meeting-banner p {
+                font-size: 13px;
             }
         }
     </style>
@@ -666,6 +731,10 @@
 
             <div class="calendar-grid" id="calendarGrid"></div>
 
+            <button id="setMeetingBtn" class="set-meeting-btn" onclick="confirmSetMeeting()">
+                Set as Next Meeting
+            </button>
+
             <div class="legend">
                 <div class="legend-item">
                     <div class="legend-box" style="background: #d1f2eb; border: 1px solid #34c759;"></div>
@@ -676,7 +745,7 @@
                     <span>Next meeting</span>
                 </div>
                 <div class="legend-item">
-                    <span style="font-size: 13px; color: #6e6e73;">Tap to mark availability. Long-press (or right-click) to set as next meeting.</span>
+                    <span style="font-size: 13px; color: #6e6e73;">Tap a date to mark availability. Tap again to set as meeting.</span>
                 </div>
             </div>
         </div>
@@ -731,6 +800,7 @@
         let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
         let currentMonth = new Date();
         let selectedRating = 0;
+        let selectedDate = null;
 
         // Tab switching
         function switchTab(tabName) {
@@ -938,42 +1008,22 @@
                     dayElement.classList.add('available');
                 }
 
+                if (selectedDate === dateStr && nextMeeting !== dateStr) {
+                    dayElement.classList.add('selected');
+                }
+
                 dayElement.innerHTML = `
                     <span class="date">${day}</span>
                     ${count > 0 ? `<span class="count">${count} available</span>` : ''}
                 `;
 
-                // Touch and click handlers
-                let touchTimer;
-                let touchDuration = 0;
+                // Click/tap handler for selecting date
+                dayElement.onclick = (e) => {
+                    e.preventDefault();
+                    selectDate(dateStr);
+                };
 
-                dayElement.addEventListener('touchstart', (e) => {
-                    touchDuration = Date.now();
-                    touchTimer = setTimeout(() => {
-                        // Long press detected
-                        setNextMeeting(dateStr);
-                        // Provide haptic feedback if available
-                        if (navigator.vibrate) {
-                            navigator.vibrate(50);
-                        }
-                    }, 500);
-                });
-
-                dayElement.addEventListener('touchend', (e) => {
-                    clearTimeout(touchTimer);
-                    const pressDuration = Date.now() - touchDuration;
-                    // If it was a short tap (not a long press)
-                    if (pressDuration < 500) {
-                        e.preventDefault();
-                        toggleAvailability(dateStr);
-                    }
-                });
-
-                dayElement.addEventListener('touchcancel', () => {
-                    clearTimeout(touchTimer);
-                });
-
-                dayElement.onclick = () => toggleAvailability(dateStr);
+                // Right-click for desktop users
                 dayElement.oncontextmenu = (e) => {
                     e.preventDefault();
                     setNextMeeting(dateStr);
@@ -983,6 +1033,40 @@
             }
 
             updateNextMeetingInfo();
+        }
+
+        function selectDate(dateStr) {
+            // If clicking the same date, deselect it
+            if (selectedDate === dateStr) {
+                selectedDate = null;
+                hideSetMeetingButton();
+            } else {
+                selectedDate = dateStr;
+                showSetMeetingButton();
+            }
+            renderCalendar();
+        }
+
+        function showSetMeetingButton() {
+            const btn = document.getElementById('setMeetingBtn');
+            if (btn) {
+                btn.classList.add('show');
+            }
+        }
+
+        function hideSetMeetingButton() {
+            const btn = document.getElementById('setMeetingBtn');
+            if (btn) {
+                btn.classList.remove('show');
+            }
+        }
+
+        function confirmSetMeeting() {
+            if (selectedDate) {
+                setNextMeeting(selectedDate);
+                selectedDate = null;
+                hideSetMeetingButton();
+            }
         }
 
         function toggleAvailability(dateStr) {
@@ -998,6 +1082,8 @@
         function setNextMeeting(dateStr) {
             nextMeeting = dateStr;
             localStorage.setItem('nextMeeting', nextMeeting);
+            selectedDate = null;
+            hideSetMeetingButton();
             renderCalendar();
         }
 
