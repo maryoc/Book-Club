@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Club Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 18px;
+            padding: 60px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1d1d1f;
+            margin-bottom: 48px;
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            color: #1d1d1f;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #1d1d1f;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.005em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            background: #f5f5f7;
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: #6e6e73;
+            transition: all 0.2s ease;
+            border-radius: 7px;
+        }
+
+        .tab:hover {
+            color: #1d1d1f;
+        }
+
+        .tab.active {
+            background: white;
+            color: #1d1d1f;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="time"], textarea, select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            background: white;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            color: #1d1d1f;
+        }
+
+        input[type="text"]:focus, input[type="time"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        select {
+            background-color: white;
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #0071e3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+        }
+
+        button:hover {
+            background: #0077ed;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+        }
+
+        .item-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .item {
+            background: white;
+            padding: 20px;
+            border: 1px solid #d2d2d7;
+            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .item:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .item h3 {
+            color: #1d1d1f;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+        .item p {
+            color: #6e6e73;
+            font-size: 15px;
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+
+        .item small {
+            color: #86868b;
+            font-size: 13px;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 12px;
+            background: #ff3b30;
+            color: white;
+            border: none;
+            font-size: 13px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .delete-btn:hover {
+            background: #ff453a;
+        }
+
+        .edit-btn {
+            position: absolute;
+            top: 16px;
+            right: 90px;
+            padding: 6px 12px;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: 1px solid #d2d2d7;
+            font-size: 13px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .edit-btn:hover {
+            background: #e8e8ed;
+        }
+
+        .save-btn {
+            padding: 8px 16px;
+            background: #34c759;
+            color: white;
+            border: none;
+            font-size: 14px;
+            margin-right: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .save-btn:hover {
+            background: #30d158;
+        }
+
+        .cancel-btn {
+            padding: 8px 16px;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: 1px solid #d2d2d7;
+            font-size: 14px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .cancel-btn:hover {
+            background: #e8e8ed;
+        }
+
+        .review-item.editing {
+            background: #f5f5f7;
+            border-color: #0071e3;
+        }
+
+        .edit-star-rating {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .edit-star {
+            font-size: 22px;
+            color: #d2d2d7;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .edit-star:hover,
+        .edit-star.active {
+            color: #ffcc00;
+        }
+
+        .vote-btn {
+            padding: 6px 14px;
+            background: #0071e3;
+            color: white;
+            border: none;
+            font-size: 13px;
+            margin-right: 10px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .vote-btn:hover {
+            background: #0077ed;
+        }
+
+        .votes {
+            display: inline-block;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            padding: 4px 12px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 10px;
+            border-radius: 12px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 12px;
+            background: #f5f5f7;
+            color: #6e6e73;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #e5e5ea;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 8px;
+            position: relative;
+            border-radius: 8px;
+            -webkit-tap-highlight-color: rgba(0, 113, 227, 0.1);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .calendar-day:hover {
+            border-color: #0071e3;
+            background: #f5f5f7;
+        }
+
+        .calendar-day:active {
+            transform: scale(0.95);
+            background: #e8e8ed;
+        }
+
+        .calendar-day.available {
+            background: #d1f2eb;
+            border-color: #34c759;
+        }
+
+        .calendar-day.next-meeting {
+            background: #0071e3;
+            color: white;
+            font-weight: 600;
+            border-color: #0071e3;
+        }
+
+        .calendar-day .date {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .calendar-day .count {
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .month-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-top: 20px;
+            padding: 16px;
+            background: #f5f5f7;
+            border-radius: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #6e6e73;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .next-meeting-info {
+            background: #f5f5f7;
+            padding: 24px;
+            margin-bottom: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .next-meeting-info h3 {
+            color: #1d1d1f;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .star {
+            font-size: 24px;
+            color: #d2d2d7;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #ffcc00;
+        }
+
+        .star-display {
+            display: inline-flex;
+            gap: 2px;
+            font-size: 16px;
+            color: #ffcc00;
+        }
+
+        .review-item {
+            background: white;
+            padding: 24px;
+            border: 1px solid #d2d2d7;
+            position: relative;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .review-item:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .review-notes {
+            background: #f5f5f7;
+            padding: 16px;
+            margin-top: 12px;
+            line-height: 1.6;
+            color: #1d1d1f;
+            border-radius: 8px;
+        }
+
+        .global-meeting-banner {
+            background: #0071e3;
+            color: white;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+        }
+
+        .global-meeting-banner.hidden {
+            display: none;
+        }
+
+        .global-meeting-banner h3 {
+            margin: 0 0 8px 0;
+            font-size: 17px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .global-meeting-banner p {
+            margin: 0;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .book-select-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .book-select-group label {
+            min-width: 120px;
+            font-weight: 500;
+            color: #1d1d1f;
+            font-size: 15px;
+        }
+
+        label {
+            color: #1d1d1f;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .container {
+                padding: 30px 20px;
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 32px;
+                margin-bottom: 32px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .tabs {
+                gap: 4px;
+                padding: 3px;
+            }
+
+            .tab {
+                font-size: 13px;
+                padding: 8px 12px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .calendar-grid {
+                gap: 6px;
+            }
+
+            .calendar-day {
+                font-size: 14px;
+                padding: 4px;
+            }
+
+            .calendar-day .date {
+                font-size: 16px;
+            }
+
+            .calendar-day .count {
+                font-size: 10px;
+            }
+
+            .item {
+                padding: 16px;
+            }
+
+            .delete-btn,
+            .edit-btn {
+                position: static;
+                margin-top: 12px;
+                display: inline-block;
+            }
+
+            .legend {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Book Club Portal</h1>
+
+        <div id="globalMeetingBanner" class="global-meeting-banner hidden">
+            <h3>Next Book Club Meeting</h3>
+            <p id="globalMeetingInfo">No meeting scheduled yet</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('books')">Book Suggestions</button>
+            <button class="tab" onclick="switchTab('locations')">Location Ideas</button>
+            <button class="tab" onclick="switchTab('calendar')">Calendar & Availability</button>
+            <button class="tab" onclick="switchTab('reviews')">Past Reviews</button>
+        </div>
+
+        <!-- Books Tab -->
+        <div id="books" class="tab-content active">
+            <div class="input-group">
+                <input type="text" id="bookTitle" placeholder="Book Title">
+                <input type="text" id="bookAuthor" placeholder="Author">
+                <input type="text" id="suggestedBy" placeholder="Your Name">
+                <button onclick="addBook()">Add Book</button>
+            </div>
+            <div id="bookList" class="item-list"></div>
+        </div>
+
+        <!-- Locations Tab -->
+        <div id="locations" class="tab-content">
+            <div class="input-group">
+                <input type="text" id="locationName" placeholder="Location Name">
+                <textarea id="locationDetails" placeholder="Address and details"></textarea>
+                <input type="text" id="locationSuggestedBy" placeholder="Your Name">
+                <button onclick="addLocation()">Add Location</button>
+            </div>
+            <div id="locationList" class="item-list"></div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendar" class="tab-content">
+            <div class="next-meeting-info" id="nextMeetingInfo">
+                <h3>Next Book Club Meeting</h3>
+                <p id="nextMeetingDate">No meeting scheduled yet. Click a date below to set it.</p>
+                <div style="margin-top: 15px;">
+                    <label style="display: block; margin-bottom: 8px; color: #1d1d1f; font-weight: 500;">Book:</label>
+                    <select id="meetingBook" onchange="updateMeetingBook()" style="width: 100%; max-width: 400px; margin-bottom: 15px;">
+                        <option value="">Select a book</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; color: #1d1d1f; font-weight: 500;">Location:</label>
+                    <select id="meetingLocation" onchange="updateMeetingLocation()" style="width: 100%; max-width: 400px; margin-bottom: 15px;">
+                        <option value="">Select a location</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; color: #1d1d1f; font-weight: 500;">Time:</label>
+                    <input type="time" id="meetingTime" onchange="updateMeetingTime()" style="width: 100%; max-width: 400px;">
+                </div>
+            </div>
+
+            <div class="calendar-controls">
+                <h2 id="currentMonth"></h2>
+                <div class="month-nav">
+                    <button onclick="changeMonth(-1)">Previous</button>
+                    <button onclick="changeMonth(1)">Next</button>
+                </div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid"></div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #d1f2eb; border: 1px solid #34c759;"></div>
+                    <span>You're available</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #0071e3;"></div>
+                    <span>Next meeting</span>
+                </div>
+                <div class="legend-item">
+                    <span style="font-size: 13px; color: #6e6e73;">Tap to mark availability. Long-press (or right-click) to set as next meeting.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div id="reviews" class="tab-content">
+            <h2 style="color: #333; margin-bottom: 20px;">Past Book Club Reviews</h2>
+
+            <div style="background: #f5f5f7; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h3 style="color: #1d1d1f; margin-bottom: 10px;">Add a Review</h3>
+                <div class="input-group" style="flex-direction: column; gap: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: #1d1d1f; font-weight: 500;">Select from Book Suggestions or enter manually:</label>
+                        <select id="reviewBookSelect" onchange="populateReviewFromBook()" style="width: 100%;">
+                            <option value="">-- Select a book from suggestions --</option>
+                        </select>
+                    </div>
+                    <input type="text" id="reviewBookTitle" placeholder="Book Title (or select from above)">
+                    <input type="text" id="reviewBookAuthor" placeholder="Author">
+                    <input type="text" id="reviewMemberName" placeholder="Your Name">
+
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: #1d1d1f; font-weight: 500;">Rating:</label>
+                        <div class="star-rating" id="starRating">
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
+                        </div>
+                    </div>
+
+                    <textarea id="reviewNotes" placeholder="Your review and notes about this book..." style="min-height: 100px;"></textarea>
+
+                    <button onclick="addReview()" style="align-self: flex-start;">Add Review</button>
+                </div>
+            </div>
+
+            <div id="reviewList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let books = JSON.parse(localStorage.getItem('books')) || [];
+        let locations = JSON.parse(localStorage.getItem('locations')) || [];
+        let availability = JSON.parse(localStorage.getItem('availability')) || {};
+        let nextMeeting = localStorage.getItem('nextMeeting') || null;
+        let meetingLocation = localStorage.getItem('meetingLocation') || '';
+        let meetingBook = localStorage.getItem('meetingBook') || '';
+        let meetingTime = localStorage.getItem('meetingTime') || '';
+        let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+        let currentMonth = new Date();
+        let selectedRating = 0;
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'calendar') {
+                populateBookDropdown();
+                populateLocationDropdown();
+                populateTimeField();
+                renderCalendar();
+            } else if (tabName === 'reviews') {
+                populateReviewBookDropdown();
+            }
+        }
+
+        function populateTimeField() {
+            const timeInput = document.getElementById('meetingTime');
+            if (timeInput && meetingTime) {
+                timeInput.value = meetingTime;
+            }
+        }
+
+        // Books functions
+        function addBook() {
+            const title = document.getElementById('bookTitle').value.trim();
+            const author = document.getElementById('bookAuthor').value.trim();
+            const suggestedBy = document.getElementById('suggestedBy').value.trim();
+
+            if (!title || !author || !suggestedBy) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            books.push({
+                id: Date.now(),
+                title,
+                author,
+                suggestedBy,
+                votes: 0,
+                date: new Date().toLocaleDateString()
+            });
+
+            saveBooks();
+            renderBooks();
+
+            document.getElementById('bookTitle').value = '';
+            document.getElementById('bookAuthor').value = '';
+            document.getElementById('suggestedBy').value = '';
+        }
+
+        function voteBook(id) {
+            const book = books.find(b => b.id === id);
+            if (book) {
+                book.votes++;
+                saveBooks();
+                renderBooks();
+            }
+        }
+
+        function deleteBook(id) {
+            if (confirm('Are you sure you want to delete this book?')) {
+                books = books.filter(b => b.id !== id);
+                saveBooks();
+                renderBooks();
+            }
+        }
+
+        function saveBooks() {
+            localStorage.setItem('books', JSON.stringify(books));
+        }
+
+        function renderBooks() {
+            const bookList = document.getElementById('bookList');
+            const sortedBooks = [...books].sort((a, b) => b.votes - a.votes);
+
+            bookList.innerHTML = sortedBooks.map(book => `
+                <div class="item">
+                    <h3>${book.title}</h3>
+                    <p>by ${book.author}</p>
+                    <small>Suggested by ${book.suggestedBy} on ${book.date}</small>
+                    <span class="votes">${book.votes} votes</span>
+                    <br><br>
+                    <button class="vote-btn" onclick="voteBook(${book.id})">Vote</button>
+                    <button class="delete-btn" onclick="deleteBook(${book.id})">Delete</button>
+                </div>
+            `).join('');
+
+            // Update book dropdowns in other tabs
+            populateBookDropdown();
+            populateReviewBookDropdown();
+        }
+
+        // Locations functions
+        function addLocation() {
+            const name = document.getElementById('locationName').value.trim();
+            const details = document.getElementById('locationDetails').value.trim();
+            const suggestedBy = document.getElementById('locationSuggestedBy').value.trim();
+
+            if (!name || !details || !suggestedBy) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            locations.push({
+                id: Date.now(),
+                name,
+                details,
+                suggestedBy,
+                votes: 0,
+                date: new Date().toLocaleDateString()
+            });
+
+            saveLocations();
+            renderLocations();
+
+            document.getElementById('locationName').value = '';
+            document.getElementById('locationDetails').value = '';
+            document.getElementById('locationSuggestedBy').value = '';
+        }
+
+        function voteLocation(id) {
+            const location = locations.find(l => l.id === id);
+            if (location) {
+                location.votes++;
+                saveLocations();
+                renderLocations();
+            }
+        }
+
+        function deleteLocation(id) {
+            if (confirm('Are you sure you want to delete this location?')) {
+                locations = locations.filter(l => l.id !== id);
+                saveLocations();
+                renderLocations();
+            }
+        }
+
+        function saveLocations() {
+            localStorage.setItem('locations', JSON.stringify(locations));
+        }
+
+        function renderLocations() {
+            const locationList = document.getElementById('locationList');
+            const sortedLocations = [...locations].sort((a, b) => b.votes - a.votes);
+
+            locationList.innerHTML = sortedLocations.map(location => `
+                <div class="item">
+                    <h3>${location.name}</h3>
+                    <p>${location.details}</p>
+                    <small>Suggested by ${location.suggestedBy} on ${location.date}</small>
+                    <span class="votes">${location.votes} votes</span>
+                    <br><br>
+                    <button class="vote-btn" onclick="voteLocation(${location.id})">Vote</button>
+                    <button class="delete-btn" onclick="deleteLocation(${location.id})">Delete</button>
+                </div>
+            `).join('');
+
+            // Update location dropdown in calendar tab
+            populateLocationDropdown();
+        }
+
+        // Calendar functions
+        function renderCalendar() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+
+            document.getElementById('currentMonth').textContent =
+                currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // Day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.textContent = day;
+                calendarGrid.appendChild(header);
+            });
+
+            // Empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                calendarGrid.appendChild(document.createElement('div'));
+            }
+
+            // Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${month + 1}-${day}`;
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+
+                const count = availability[dateStr] || 0;
+
+                if (nextMeeting === dateStr) {
+                    dayElement.classList.add('next-meeting');
+                } else if (count > 0) {
+                    dayElement.classList.add('available');
+                }
+
+                dayElement.innerHTML = `
+                    <span class="date">${day}</span>
+                    ${count > 0 ? `<span class="count">${count} available</span>` : ''}
+                `;
+
+                // Touch and click handlers
+                let touchTimer;
+                let touchDuration = 0;
+
+                dayElement.addEventListener('touchstart', (e) => {
+                    touchDuration = Date.now();
+                    touchTimer = setTimeout(() => {
+                        // Long press detected
+                        setNextMeeting(dateStr);
+                        // Provide haptic feedback if available
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+                    }, 500);
+                });
+
+                dayElement.addEventListener('touchend', (e) => {
+                    clearTimeout(touchTimer);
+                    const pressDuration = Date.now() - touchDuration;
+                    // If it was a short tap (not a long press)
+                    if (pressDuration < 500) {
+                        e.preventDefault();
+                        toggleAvailability(dateStr);
+                    }
+                });
+
+                dayElement.addEventListener('touchcancel', () => {
+                    clearTimeout(touchTimer);
+                });
+
+                dayElement.onclick = () => toggleAvailability(dateStr);
+                dayElement.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    setNextMeeting(dateStr);
+                };
+
+                calendarGrid.appendChild(dayElement);
+            }
+
+            updateNextMeetingInfo();
+        }
+
+        function toggleAvailability(dateStr) {
+            if (!availability[dateStr]) {
+                availability[dateStr] = 0;
+            }
+            availability[dateStr]++;
+
+            localStorage.setItem('availability', JSON.stringify(availability));
+            renderCalendar();
+        }
+
+        function setNextMeeting(dateStr) {
+            nextMeeting = dateStr;
+            localStorage.setItem('nextMeeting', nextMeeting);
+            renderCalendar();
+        }
+
+        function updateNextMeetingInfo() {
+            const info = document.getElementById('nextMeetingDate');
+            if (nextMeeting) {
+                const [year, month, day] = nextMeeting.split('-');
+                const date = new Date(year, month - 1, day);
+                const availableCount = availability[nextMeeting] || 0;
+
+                let timeText = '';
+                if (meetingTime) {
+                    timeText = ` at ${formatTime(meetingTime)}`;
+                }
+
+                let bookText = '';
+                if (meetingBook) {
+                    const book = books.find(b => b.id == meetingBook);
+                    if (book) {
+                        bookText = `<br><strong>Book:</strong> ${book.title} by ${book.author}`;
+                    }
+                }
+
+                let locationText = '';
+                if (meetingLocation) {
+                    const location = locations.find(l => l.id == meetingLocation);
+                    if (location) {
+                        locationText = `<br><strong>Location:</strong> ${location.name}`;
+                    }
+                }
+
+                info.innerHTML = `
+                    <strong>${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}${timeText}</strong><br>
+                    ${availableCount} member(s) marked as available
+                    ${bookText}
+                    ${locationText}
+                `;
+            } else {
+                info.textContent = 'No meeting scheduled yet. Right-click a date to set it.';
+            }
+
+            // Update global banner
+            updateGlobalBanner();
+        }
+
+        function formatTime(time) {
+            if (!time) return '';
+            const [hours, minutes] = time.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        function updateGlobalBanner() {
+            const banner = document.getElementById('globalMeetingBanner');
+            const bannerInfo = document.getElementById('globalMeetingInfo');
+
+            if (nextMeeting) {
+                const [year, month, day] = nextMeeting.split('-');
+                const date = new Date(year, month - 1, day);
+
+                let timeText = '';
+                if (meetingTime) {
+                    timeText = ` at ${formatTime(meetingTime)}`;
+                }
+
+                let bookText = '';
+                if (meetingBook) {
+                    const book = books.find(b => b.id == meetingBook);
+                    if (book) {
+                        bookText = ` | Book: "${book.title}" by ${book.author}`;
+                    }
+                }
+
+                let locationText = '';
+                if (meetingLocation) {
+                    const location = locations.find(l => l.id == meetingLocation);
+                    if (location) {
+                        locationText = ` | Location: ${location.name}`;
+                    }
+                }
+
+                bannerInfo.textContent = `${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}${timeText}${bookText}${locationText}`;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        function populateLocationDropdown() {
+            const dropdown = document.getElementById('meetingLocation');
+            if (!dropdown) return;
+
+            const sortedLocations = [...locations].sort((a, b) => b.votes - a.votes);
+
+            dropdown.innerHTML = '<option value="">Select a location</option>' +
+                sortedLocations.map(location =>
+                    `<option value="${location.id}" ${location.id == meetingLocation ? 'selected' : ''}>
+                        ${location.name}
+                    </option>`
+                ).join('');
+        }
+
+        function updateMeetingLocation() {
+            const dropdown = document.getElementById('meetingLocation');
+            meetingLocation = dropdown.value;
+            localStorage.setItem('meetingLocation', meetingLocation);
+            updateNextMeetingInfo();
+        }
+
+        function populateBookDropdown() {
+            const dropdown = document.getElementById('meetingBook');
+            if (!dropdown) return;
+
+            const sortedBooks = [...books].sort((a, b) => b.votes - a.votes);
+
+            dropdown.innerHTML = '<option value="">Select a book</option>' +
+                sortedBooks.map(book =>
+                    `<option value="${book.id}" ${book.id == meetingBook ? 'selected' : ''}>
+                        ${book.title} by ${book.author}
+                    </option>`
+                ).join('');
+        }
+
+        function updateMeetingBook() {
+            const dropdown = document.getElementById('meetingBook');
+            meetingBook = dropdown.value;
+            localStorage.setItem('meetingBook', meetingBook);
+            updateNextMeetingInfo();
+        }
+
+        function updateMeetingTime() {
+            const timeInput = document.getElementById('meetingTime');
+            meetingTime = timeInput.value;
+            localStorage.setItem('meetingTime', meetingTime);
+            updateNextMeetingInfo();
+        }
+
+        function populateReviewBookDropdown() {
+            const dropdown = document.getElementById('reviewBookSelect');
+            if (!dropdown) return;
+
+            const sortedBooks = [...books].sort((a, b) => b.votes - a.votes);
+
+            dropdown.innerHTML = '<option value="">-- Select a book from suggestions --</option>' +
+                sortedBooks.map(book =>
+                    `<option value="${book.id}">
+                        ${book.title} by ${book.author}
+                    </option>`
+                ).join('');
+        }
+
+        function populateReviewFromBook() {
+            const dropdown = document.getElementById('reviewBookSelect');
+            const bookId = dropdown.value;
+
+            if (bookId) {
+                const book = books.find(b => b.id == bookId);
+                if (book) {
+                    document.getElementById('reviewBookTitle').value = book.title;
+                    document.getElementById('reviewBookAuthor').value = book.author;
+                }
+            }
+        }
+
+        function changeMonth(direction) {
+            currentMonth.setMonth(currentMonth.getMonth() + direction);
+            renderCalendar();
+        }
+
+        // Reviews functions
+        function initStarRating() {
+            const stars = document.querySelectorAll('#starRating .star');
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.rating);
+                    updateStarDisplay();
+                });
+
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            document.getElementById('starRating').addEventListener('mouseleave', function() {
+                updateStarDisplay();
+            });
+        }
+
+        function updateStarDisplay() {
+            const stars = document.querySelectorAll('#starRating .star');
+            stars.forEach((star, index) => {
+                if (index < selectedRating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function addReview() {
+            const bookTitle = document.getElementById('reviewBookTitle').value.trim();
+            const bookAuthor = document.getElementById('reviewBookAuthor').value.trim();
+            const memberName = document.getElementById('reviewMemberName').value.trim();
+            const notes = document.getElementById('reviewNotes').value.trim();
+
+            if (!bookTitle || !bookAuthor || !memberName || !notes) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (selectedRating === 0) {
+                alert('Please select a rating');
+                return;
+            }
+
+            reviews.push({
+                id: Date.now(),
+                bookTitle,
+                bookAuthor,
+                memberName,
+                rating: selectedRating,
+                notes,
+                date: new Date().toLocaleDateString()
+            });
+
+            saveReviews();
+            renderReviews();
+
+            // Clear form
+            document.getElementById('reviewBookSelect').value = '';
+            document.getElementById('reviewBookTitle').value = '';
+            document.getElementById('reviewBookAuthor').value = '';
+            document.getElementById('reviewMemberName').value = '';
+            document.getElementById('reviewNotes').value = '';
+            selectedRating = 0;
+            updateStarDisplay();
+        }
+
+        function deleteReview(id) {
+            if (confirm('Are you sure you want to delete this review?')) {
+                reviews = reviews.filter(r => r.id !== id);
+                saveReviews();
+                renderReviews();
+            }
+        }
+
+        function saveReviews() {
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+        }
+
+        function renderReviews() {
+            const reviewList = document.getElementById('reviewList');
+            const sortedReviews = [...reviews].sort((a, b) => b.id - a.id);
+
+            if (sortedReviews.length === 0) {
+                reviewList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No reviews yet. Add your first book review above!</p>';
+                return;
+            }
+
+            reviewList.innerHTML = sortedReviews.map(review => {
+                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                return `
+                    <div class="review-item" id="review-${review.id}">
+                        <div class="review-header">
+                            <div>
+                                <h3 style="color: #333; margin-bottom: 5px;">${review.bookTitle}</h3>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 8px;">by ${review.bookAuthor}</p>
+                                <div class="star-display">${stars}</div>
+                            </div>
+                            <button class="edit-btn" onclick="editReview(${review.id})">Edit</button>
+                            <button class="delete-btn" onclick="deleteReview(${review.id})">Delete</button>
+                        </div>
+                        <div class="review-notes">${review.notes}</div>
+                        <small style="color: #999; margin-top: 10px; display: block;">
+                            Reviewed by ${review.memberName} on ${review.date}
+                        </small>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function editReview(id) {
+            const review = reviews.find(r => r.id === id);
+            if (!review) return;
+
+            const reviewElement = document.getElementById(`review-${id}`);
+            reviewElement.classList.add('editing');
+
+            const editStars = Array.from({length: 5}, (_, i) =>
+                `<span class="edit-star ${i < review.rating ? 'active' : ''}" data-rating="${i + 1}" onclick="setEditRating(${id}, ${i + 1})">★</span>`
+            ).join('');
+
+            reviewElement.innerHTML = `
+                <div class="review-header">
+                    <div style="width: 100%; padding-right: 90px;">
+                        <input type="text" id="edit-title-${id}" value="${review.bookTitle}"
+                               style="width: 100%; margin-bottom: 10px;" placeholder="Book Title">
+                        <input type="text" id="edit-author-${id}" value="${review.bookAuthor}"
+                               style="width: 100%; margin-bottom: 10px;" placeholder="Author">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 500;">Rating:</label>
+                            <div class="edit-star-rating" id="edit-stars-${id}">
+                                ${editStars}
+                            </div>
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteReview(${id})">Delete</button>
+                </div>
+                <textarea id="edit-notes-${id}" style="width: 100%; min-height: 100px; margin-top: 10px;">${review.notes}</textarea>
+                <div style="margin-top: 15px;">
+                    <button class="save-btn" onclick="saveEditedReview(${id})">Save</button>
+                    <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                </div>
+                <small style="color: #999; margin-top: 10px; display: block;">
+                    Reviewed by ${review.memberName} on ${review.date}
+                </small>
+            `;
+        }
+
+        function setEditRating(reviewId, rating) {
+            const review = reviews.find(r => r.id === reviewId);
+            if (!review) return;
+
+            review.tempRating = rating;
+
+            const starsContainer = document.getElementById(`edit-stars-${reviewId}`);
+            const stars = starsContainer.querySelectorAll('.edit-star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function saveEditedReview(id) {
+            const review = reviews.find(r => r.id === id);
+            if (!review) return;
+
+            const newTitle = document.getElementById(`edit-title-${id}`).value.trim();
+            const newAuthor = document.getElementById(`edit-author-${id}`).value.trim();
+            const newNotes = document.getElementById(`edit-notes-${id}`).value.trim();
+
+            if (!newTitle || !newAuthor || !newNotes) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (review.tempRating === undefined) {
+                review.tempRating = review.rating;
+            }
+
+            review.bookTitle = newTitle;
+            review.bookAuthor = newAuthor;
+            review.rating = review.tempRating;
+            review.notes = newNotes;
+            delete review.tempRating;
+
+            saveReviews();
+            renderReviews();
+        }
+
+        function cancelEdit() {
+            // Remove temp ratings
+            reviews.forEach(review => {
+                delete review.tempRating;
+            });
+            renderReviews();
+        }
+
+        // Initialize
+        renderBooks();
+        renderLocations();
+        populateBookDropdown();
+        populateLocationDropdown();
+        populateTimeField();
+        populateReviewBookDropdown();
+        renderCalendar();
+        renderReviews();
+        initStarRating();
+        updateGlobalBanner();
+    </script>
+</body>
+</html>
