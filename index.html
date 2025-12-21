@@ -579,6 +579,9 @@
             cursor: pointer;
             transition: background 0.2s;
             border-bottom: 1px solid #f5f5f7;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
         }
 
         .autocomplete-item:last-child {
@@ -948,18 +951,44 @@
         }
 
         function displayAutocompleteResults(items) {
-            autocompleteDropdown.innerHTML = items.map(item => {
+            autocompleteDropdown.innerHTML = items.map((item, index) => {
                 const title = item.volumeInfo.title || 'Unknown Title';
                 const authors = item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author';
 
                 return `
-                    <div class="autocomplete-item" onclick="selectBook('${escapeHtml(title)}', '${escapeHtml(authors)}')">
+                    <div class="autocomplete-item" data-title="${escapeHtml(title)}" data-author="${escapeHtml(authors)}" data-index="${index}">
                         <div class="book-title">${title}</div>
                         <div class="book-author">${authors}</div>
                     </div>
                 `;
             }).join('');
             autocompleteDropdown.classList.add('show');
+
+            // Add event listeners to each item
+            const items_elements = autocompleteDropdown.querySelectorAll('.autocomplete-item');
+            items_elements.forEach(item => {
+                // Handle both click and touch events
+                item.addEventListener('click', handleAutocompleteItemClick);
+                item.addEventListener('touchend', handleAutocompleteItemTouch);
+            });
+        }
+
+        function handleAutocompleteItemClick(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const item = e.currentTarget;
+            const title = item.getAttribute('data-title');
+            const author = item.getAttribute('data-author');
+            selectBook(title, author);
+        }
+
+        function handleAutocompleteItemTouch(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const item = e.currentTarget;
+            const title = item.getAttribute('data-title');
+            const author = item.getAttribute('data-author');
+            selectBook(title, author);
         }
 
         function selectBook(title, author) {
@@ -1015,7 +1044,13 @@
 
         // Close autocomplete when clicking outside
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.autocomplete-wrapper')) {
+            if (!e.target.closest('.autocomplete-wrapper') && !e.target.closest('.autocomplete-dropdown')) {
+                hideAutocomplete();
+            }
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            if (!e.target.closest('.autocomplete-wrapper') && !e.target.closest('.autocomplete-dropdown')) {
                 hideAutocomplete();
             }
         });
