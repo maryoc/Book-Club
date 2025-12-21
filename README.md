@@ -121,28 +121,52 @@ To deploy changes:
   - `index.html` - Single-page application (all HTML, CSS, and JavaScript)
   - `README.md` - This documentation
 
-## 🔒 Security Considerations
+## 🔒 Security
 
-**Current Status:** Firebase is in test mode, allowing read/write access to anyone with the URL.
+### Firebase API Key (Public - This is OK!)
 
-**For Production Use:** Consider adding Firebase security rules to:
-- Require authentication
-- Limit write access to authenticated users
-- Validate data structure
-- Prevent malicious data
+The Firebase API key visible in `index.html` is **intentionally public**. This is normal and safe:
+- Firebase API keys are not secret credentials
+- They identify your Firebase project, similar to a project ID
+- Real security comes from Firebase Security Rules, not hiding the API key
+- This is documented in [Firebase's official documentation](https://firebase.google.com/docs/projects/api-keys)
 
-### Recommended Security Rules
+### Current Security Setup
 
-```json
-{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}
-```
+**Access Level:** Public read/write with comprehensive data validation
 
-For a more secure setup, consider implementing Firebase Authentication.
+The Firebase Realtime Database uses security rules that:
+- ✅ Allow anyone with the URL to read and write (perfect for trusted book clubs)
+- ✅ Validate all data structure and types before accepting writes
+- ✅ Ensure required fields are present (title, author, etc.)
+- ✅ Enforce rating constraints (1-5 stars only)
+- ✅ Prevent malformed or malicious data
+- ✅ Block invalid data types and empty values
+
+### Security Rules Implementation
+
+The database enforces strict validation rules for all data:
+
+**Books:** Must include id, title, author, suggestedBy, votes, and date
+**Locations:** Must include id, name, details, suggestedBy, votes, and date
+**Reviews:** Must include id, bookTitle, bookAuthor, memberName, rating (1-5), notes, and date
+**Calendar Data:** Validated for proper string/number formats
+
+### Alternative Security Options
+
+If you need stricter access control, consider:
+
+**Option 1: Firebase Authentication**
+- Require users to sign in with email/Google
+- Track who added/edited what
+- More formal security model
+
+**Option 2: Private Firebase Project**
+- Create a separate Firebase project
+- Use different security rules
+- Deploy as a separate instance
+
+For most small book clubs with trusted members, the current validation-based approach provides the right balance of ease-of-use and security.
 
 ## 🎯 Future Enhancement Ideas
 
