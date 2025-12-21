@@ -788,16 +788,36 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsN06-RvIorsjNbUUptMIiO2oiM_K89fY",
+            authDomain: "book-club-hub-35666.firebaseapp.com",
+            databaseURL: "https://book-club-hub-35666-default-rtdb.firebaseio.com",
+            projectId: "book-club-hub-35666",
+            storageBucket: "book-club-hub-35666.firebasestorage.app",
+            messagingSenderId: "247387154856",
+            appId: "1:247387154856:web:c25093604bca02355f159d",
+            measurementId: "G-7188S1LV8X"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         // Data storage
-        let books = JSON.parse(localStorage.getItem('books')) || [];
-        let locations = JSON.parse(localStorage.getItem('locations')) || [];
-        let availability = JSON.parse(localStorage.getItem('availability')) || {};
-        let nextMeeting = localStorage.getItem('nextMeeting') || null;
-        let meetingLocation = localStorage.getItem('meetingLocation') || '';
-        let meetingBook = localStorage.getItem('meetingBook') || '';
-        let meetingTime = localStorage.getItem('meetingTime') || '';
-        let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+        let books = [];
+        let locations = [];
+        let availability = {};
+        let nextMeeting = null;
+        let meetingLocation = '';
+        let meetingBook = '';
+        let meetingTime = '';
+        let reviews = [];
         let currentMonth = new Date();
         let selectedRating = 0;
         let selectedDate = null;
@@ -873,7 +893,7 @@
         }
 
         function saveBooks() {
-            localStorage.setItem('books', JSON.stringify(books));
+            database.ref('books').set(books);
         }
 
         function renderBooks() {
@@ -943,7 +963,7 @@
         }
 
         function saveLocations() {
-            localStorage.setItem('locations', JSON.stringify(locations));
+            database.ref('locations').set(locations);
         }
 
         function renderLocations() {
@@ -1075,13 +1095,13 @@
             }
             availability[dateStr]++;
 
-            localStorage.setItem('availability', JSON.stringify(availability));
+            database.ref('availability').set(availability);
             renderCalendar();
         }
 
         function setNextMeeting(dateStr) {
             nextMeeting = dateStr;
-            localStorage.setItem('nextMeeting', nextMeeting);
+            database.ref('nextMeeting').set(nextMeeting);
             selectedDate = null;
             hideSetMeetingButton();
             renderCalendar();
@@ -1191,7 +1211,7 @@
         function updateMeetingLocation() {
             const dropdown = document.getElementById('meetingLocation');
             meetingLocation = dropdown.value;
-            localStorage.setItem('meetingLocation', meetingLocation);
+            database.ref('meetingLocation').set(meetingLocation);
             updateNextMeetingInfo();
         }
 
@@ -1212,14 +1232,14 @@
         function updateMeetingBook() {
             const dropdown = document.getElementById('meetingBook');
             meetingBook = dropdown.value;
-            localStorage.setItem('meetingBook', meetingBook);
+            database.ref('meetingBook').set(meetingBook);
             updateNextMeetingInfo();
         }
 
         function updateMeetingTime() {
             const timeInput = document.getElementById('meetingTime');
             meetingTime = timeInput.value;
-            localStorage.setItem('meetingTime', meetingTime);
+            database.ref('meetingTime').set(meetingTime);
             updateNextMeetingInfo();
         }
 
@@ -1340,7 +1360,7 @@
         }
 
         function saveReviews() {
-            localStorage.setItem('reviews', JSON.stringify(reviews));
+            database.ref('reviews').set(reviews);
         }
 
         function renderReviews() {
@@ -1464,15 +1484,60 @@
             renderReviews();
         }
 
+        // Firebase Real-time Listeners
+        database.ref('books').on('value', (snapshot) => {
+            const data = snapshot.val();
+            books = data || [];
+            renderBooks();
+        });
+
+        database.ref('locations').on('value', (snapshot) => {
+            const data = snapshot.val();
+            locations = data || [];
+            renderLocations();
+        });
+
+        database.ref('availability').on('value', (snapshot) => {
+            const data = snapshot.val();
+            availability = data || {};
+            renderCalendar();
+        });
+
+        database.ref('nextMeeting').on('value', (snapshot) => {
+            nextMeeting = snapshot.val();
+            renderCalendar();
+        });
+
+        database.ref('meetingLocation').on('value', (snapshot) => {
+            meetingLocation = snapshot.val() || '';
+            populateLocationDropdown();
+            updateNextMeetingInfo();
+        });
+
+        database.ref('meetingBook').on('value', (snapshot) => {
+            meetingBook = snapshot.val() || '';
+            populateBookDropdown();
+            updateNextMeetingInfo();
+        });
+
+        database.ref('meetingTime').on('value', (snapshot) => {
+            meetingTime = snapshot.val() || '';
+            populateTimeField();
+            updateNextMeetingInfo();
+        });
+
+        database.ref('reviews').on('value', (snapshot) => {
+            const data = snapshot.val();
+            reviews = data || [];
+            renderReviews();
+        });
+
         // Initialize
-        renderBooks();
-        renderLocations();
         populateBookDropdown();
         populateLocationDropdown();
         populateTimeField();
         populateReviewBookDropdown();
         renderCalendar();
-        renderReviews();
         initStarRating();
         updateGlobalBanner();
     </script>
